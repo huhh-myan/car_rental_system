@@ -1,5 +1,6 @@
 import express from "express";
 import { pool } from "./db/client.js";
+import { middleware } from "./middleware.js";
 
 const app = express();
 const port = 3000;
@@ -131,7 +132,7 @@ declare global {
 
 //days should be less than 365 add constraint to db --done
 // 
-app.post('/bookings', async (req, res)=>{
+app.post('/bookings', middleware, async (req, res)=>{
     const carName = req.body.carName;
     const days = req.body.days;
     const rentPerDay = req.body.rentPerDay;
@@ -162,7 +163,7 @@ app.post('/bookings', async (req, res)=>{
 })
 
 
-app.get('/bookings', async (req, res)=>{
+app.get('/bookings', middleware, async (req, res)=>{
 
     const bookingId = req.query?.bookingId;
     const summary = req.query?.summary ;
@@ -211,7 +212,7 @@ app.get('/bookings', async (req, res)=>{
 })
 
 
-app.put('/bookings/:bookingId', async (req, res)=>{
+app.put('/bookings/:bookingId', middleware, async (req, res)=>{
 
     const bookingId = req.params.bookingId;
     const userId = req.user.userId
@@ -267,7 +268,7 @@ app.put('/bookings/:bookingId', async (req, res)=>{
 })
 
 
-app.delete('/booking/:bookingId', async (req, res)=>{
+app.delete('/booking/:bookingId', middleware, async (req, res)=>{
     const bookingId = req.params.bookingId;
     const userId = req.user.userId;
 
