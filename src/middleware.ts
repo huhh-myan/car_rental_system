@@ -1,10 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 
-const JWT_SECRET = "wow";
+export const JWT_SECRET = "wow";
 
 
-export const middleware = (req: Request, res: Response, next: NextFunction) => {
+export const middleware = async (req: Request, res: Response, next: NextFunction) => {
     const bearertoken = req.headers?.authorization;
     if(!bearertoken){
         return res.status(401).json({
@@ -21,7 +21,7 @@ export const middleware = (req: Request, res: Response, next: NextFunction) => {
         })
     }
 
-    const result = jwt.verify(token, JWT_SECRET) as unknown as JwtPayload;
+    const result = await jwt.verify(token, JWT_SECRET) as unknown as JwtPayload;
     if(!result){
         return res.status(401).json({
             success: false,

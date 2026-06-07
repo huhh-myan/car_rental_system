@@ -1,9 +1,13 @@
 import express from "express";
 import { pool } from "./db/client.js";
-import { middleware } from "./middleware.js";
+import { JWT_SECRET, middleware } from "./middleware.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const app = express();
 const port = 3000;
+
+const saltRounds = 10;
 
 
 app.use(express.json());
@@ -18,11 +22,12 @@ app.get('/', async (req, res)=>{
 // every time a error in signup, it automatically skips one id, what if i dont want it to skip
 // well it should be uuid ideally ig
 
-//hashing remains
+//hashing remains- done
 app.post('/auth/signup', async (req, res)=>{
     const username = req.body.username;
     const password = req.body.password;
 
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     //safe parsing of data
 
     //sending password to server protected? do i need client sided encryption for that or just https is fine?
@@ -30,7 +35,7 @@ app.post('/auth/signup', async (req, res)=>{
     //then assigning them to queries using text, values
 
     try{
-        const result = await pool.query(`INSERT INTO users(username, password) VALUES($1, $2) RETURNING id;`, [username, password]);
+        const result = await pool.query(`INSERT INTO users(username, password) VALUES($1, $2) RETURNING id;`, [username, hashedPassword]);
         
         //console.log(result);
         res.status(201).json({
@@ -67,7 +72,7 @@ app.post('/auth/signin', async (req, res)=>{
     const password = req.body.password;
 
 
-
+    
     try{
         const result   = await pool.query(`SELECT * from users WHERE username=$1;`, [username]);
 
@@ -82,15 +87,20 @@ app.post('/auth/signin', async (req, res)=>{
                 message: 'User does not exist'
             })
         }
-        if (result.rows[0]?.password === password){
 
+        const hashedpasswordCheck = await bcrypt.compare(password, result.rows[0].password)
 
+        if (hashedpasswordCheck){
+
+            const token = await jwt.sign({userId: result.rows[0].id, username: result.rows[0].username },JWT_SECRET);
+
+            req.headers.authorization = `Bearer ${token}`;
 
             res.status(200).json({
                 success: true,
                 data: {
                     message: "Login Successful",
-                    token: "ajfhdnagGHesgnasghFALSETOKEN"
+                    token: token
                 }
             })
         }else{
@@ -102,10 +112,7 @@ app.post('/auth/signin', async (req, res)=>{
         // console.log(rows);
         // res.json(rows);
     }catch(e){
-
         // console.log(e);
-        
-
         res.status(400).json({
             success:false,
             message:'Invalid Inputs'
