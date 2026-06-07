@@ -6,19 +6,16 @@ import bcrypt from "bcrypt";
 
 const app = express();
 const port = 3000;
-
 const saltRounds = 10;
 
 
 app.use(express.json());
-
 
 app.get('/', async (req, res)=>{
     const result = await pool.query(`SELECT * FROM users;`);
 
     res.send(result.rows);
 })
-
 // every time a error in signup, it automatically skips one id, what if i dont want it to skip
 // well it should be uuid ideally ig
 
@@ -65,7 +62,6 @@ app.post('/auth/signup', async (req, res)=>{
 
     // res.send('hello there');
 })
-
 //hashing of password, and making jwt and assigning it to auth header
 app.post('/auth/signin', async (req, res)=>{
     const username = req.body.username;
@@ -123,7 +119,6 @@ app.post('/auth/signin', async (req, res)=>{
 
 })
 
-
 //extension of request type
 declare global {
     namespace Express {
@@ -135,7 +130,6 @@ declare global {
         }
     }
 }
-
 
 //days should be less than 365 add constraint to db --done
 // 
