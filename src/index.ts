@@ -283,6 +283,15 @@ app.delete('/booking/:bookingId', middleware, async (req, res)=>{
             })
         }
 
+        const delResult = await pool.query(`DELET FROM bookings WHERE id=$1 AND user_id=$2`, [bookingId, userId]);
+
+        return res.status(200).json({
+            success: true,
+            data:{
+                message: "Booking deleted successfully"
+            }
+        })
+
     }catch(e){
         return res.status(404).json({
             success: false,
