@@ -174,7 +174,7 @@ app.get('/bookings', middleware, async (req, res)=>{
     try{
         // const result = await pool.query(`SELECT (id, car_name, days, rent_per_day, status) FROM users WHERE (id=$1,userId=$2);`, [bookingId,userId]);
         if(bookingId && !summary){
-            const result = await pool.query(`SELECT (id, car_name, days, rent_per_day, status) FROM bookings WHERE (id=$1,userId=$2);`, [bookingId,userId]);
+            const result = await pool.query(`SELECT (id, car_name, days, rent_per_day, status) FROM bookings WHERE (id=$1,user_id=$2);`, [bookingId,userId]);
             return res.status(200).json({
                 success: true,
                 data: [
@@ -187,7 +187,7 @@ app.get('/bookings', middleware, async (req, res)=>{
         }
 
         if(summary){
-            const result = await pool.query(`SELECT (days, rent_per_day) FROM bookings WHERE (userId=$1);`, [userId]);
+            const result = await pool.query(`SELECT (days, rent_per_day) FROM bookings WHERE (user_id=$1);`, [userId]);
             const totalAmountSpent = result.rows?.reduce((sum, {days, rent_per_day}) => sum + (days*rent_per_day),0)
 
             return res.status(200).json({
@@ -246,9 +246,9 @@ app.put('/bookings/:bookingId', middleware, async (req, res)=>{
     try{
         
         if(status){
-            result = await pool.query(`UPDATE bookings SET status=$1 WHERE user_id=$2 AND id=$3 RETURNING (id, car_name, days, rent_per_day, status);`, ['completed', userId, bookingId]);
+            result = await pool.query(`UPDATE bookings SET status=$1 WHERE user_id=$2 AND id=$3 RETURNING id, car_name, days, rent_per_day, status;`, ['completed', userId, bookingId]);
         }else{
-            result = await pool.query(`UPDATE bookings SET car_name=$1, days=$2, rent_per_day=$3 WHERE user_id=$4 AND id=$5 RETURNING (id, car_name, days, rent_per_day, status);`, [carName, days, rentPerDay, userId, bookingId]);
+            result = await pool.query(`UPDATE bookings SET car_name=$1, days=$2, rent_per_day=$3 WHERE user_id=$4 AND id=$5 RETURNING id, car_name, days, rent_per_day, status;`, [carName, days, rentPerDay, userId, bookingId]);
         }   
         return res.status(200).json({
             success: true,
@@ -283,7 +283,7 @@ app.delete('/booking/:bookingId', middleware, async (req, res)=>{
             })
         }
 
-        const delResult = await pool.query(`DELET FROM bookings WHERE id=$1 AND user_id=$2`, [bookingId, userId]);
+        const delResult = await pool.query(`DELETE FROM bookings WHERE id=$1 AND user_id=$2`, [bookingId, userId]);
 
         return res.status(200).json({
             success: true,
