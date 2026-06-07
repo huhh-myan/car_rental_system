@@ -144,7 +144,7 @@ app.post('/bookings', middleware, async (req, res)=>{
         if(days<0 || days>364){
             throw new Error('Invalid input');
         }
-        const result =  await pool.query(`INSERT INTO users(user_id, car_name, days, rent_per_day, status) VALUES ($1, $2, $3, $4, $5) RETURNING id;`,[userId, carName, days, rentPerDay, "booked"])
+        const result =  await pool.query(`INSERT INTO bookings(user_id, car_name, days, rent_per_day, status) VALUES ($1, $2, $3, $4, $5) RETURNING id;`,[userId, carName, days, rentPerDay, "booked"])
 
         return res.status(201).json({
             success:true,
@@ -174,7 +174,7 @@ app.get('/bookings', middleware, async (req, res)=>{
     try{
         // const result = await pool.query(`SELECT (id, car_name, days, rent_per_day, status) FROM users WHERE (id=$1,userId=$2);`, [bookingId,userId]);
         if(bookingId && !summary){
-            const result = await pool.query(`SELECT (id, car_name, days, rent_per_day, status) FROM users WHERE (id=$1,userId=$2);`, [bookingId,userId]);
+            const result = await pool.query(`SELECT (id, car_name, days, rent_per_day, status) FROM bookings WHERE (id=$1,userId=$2);`, [bookingId,userId]);
             return res.status(200).json({
                 success: true,
                 data: [
@@ -187,7 +187,7 @@ app.get('/bookings', middleware, async (req, res)=>{
         }
 
         if(summary){
-            const result = await pool.query(`SELECT (days, rent_per_day) FROM users WHERE (userId=$1);`, [userId]);
+            const result = await pool.query(`SELECT (days, rent_per_day) FROM bookings WHERE (userId=$1);`, [userId]);
             const totalAmountSpent = result.rows?.reduce((sum, {days, rent_per_day}) => sum + (days*rent_per_day),0)
 
             return res.status(200).json({
