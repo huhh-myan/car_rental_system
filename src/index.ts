@@ -173,7 +173,7 @@ app.get('/bookings', middleware, async (req, res)=>{
 
     try{
         if(bookingId && !summary){
-            const result = await pool.query(`SELECT id, car_name, days, rent_per_day, status FROM bookings WHERE (id=$1,user_id=$2);`, [bookingId,userId]);
+            const result = await pool.query(`SELECT id, car_name, days, rent_per_day, status FROM bookings WHERE id=$1 AND user_id=$2);`, [bookingId,userId]);
             return res.status(200).json({
                 success: true,
                 data: [
