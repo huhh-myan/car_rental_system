@@ -123,7 +123,7 @@ app.post('/auth/signin', async (req, res)=>{
 declare global {
     namespace Express {
         export interface Request {
-            user :{
+            user? :{
                 userId: number,
                 username: string
             }
@@ -138,7 +138,7 @@ app.post('/bookings', middleware, async (req, res)=>{
     const days = req.body.days;
     const rentPerDay = req.body.rentPerDay;
 
-    const userId = req.user.userId;
+    const userId = req.user?.userId;
 
     try{
         if(days<0 || days>364){
@@ -169,7 +169,7 @@ app.get('/bookings', middleware, async (req, res)=>{
     const bookingId = req.query?.bookingId;
     const summary = req.query?.summary ;
 
-    const userId  = req.user.userId
+    const userId  = req.user?.userId
 
     
     try{
@@ -194,8 +194,8 @@ app.get('/bookings', middleware, async (req, res)=>{
             return res.status(200).json({
                 success: true,
                 data: {
-                    "userId": req.user.userId,
-                    "username": req.user.username,
+                    "userId": req.user?.userId,
+                    "username": req.user?.username,
                     "totalBooking": result.rowCount,
                     "totalAmountSpent": (totalAmountSpent ? totalAmountSpent : 0)
                 }
@@ -217,7 +217,7 @@ app.get('/bookings', middleware, async (req, res)=>{
 app.put('/bookings/:bookingId', middleware, async (req, res)=>{
 
     const bookingId = req.params.bookingId;
-    const userId = req.user.userId
+    const userId = req.user?.userId
     let result ;
 
     //checking booking of user or not
@@ -272,7 +272,7 @@ app.put('/bookings/:bookingId', middleware, async (req, res)=>{
 
 app.delete('/booking/:bookingId', middleware, async (req, res)=>{
     const bookingId = req.params.bookingId;
-    const userId = req.user.userId;
+    const userId = req.user?.userId;
 
     try{
         const result = await pool.query(`SELECT * from bookings WHERE id=$1;`, [bookingId]);

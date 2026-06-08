@@ -29,8 +29,7 @@ export const middleware = async (req: Request, res: Response, next: NextFunction
         })
     }
 
-    req.user.userId = result.userId;
-    req.user.username = result.username;
+    req.user = {userId: result.userId, username: result.username};
 
     next();
 }
